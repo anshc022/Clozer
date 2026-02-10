@@ -121,7 +121,7 @@ html {
   display: flex;
   gap: 12px;
   padding: 16px;
-  align-items: flex-start;
+  align-items: stretch;
 }
 
 .hq-center {

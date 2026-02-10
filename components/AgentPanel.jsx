@@ -37,7 +37,8 @@ const styles = {
     borderRadius: 8,
     padding: 12,
     border: '1px solid #333',
-    minWidth: 200,
+    width: '100%',
+    boxSizing: 'border-box',
   },
   title: {
     color: '#888',

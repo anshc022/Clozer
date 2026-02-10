@@ -16,17 +16,17 @@ const AGENT_MAP = {
 // ─── Each agent has their own work room (so they spread out on the canvas) ───
 const AGENT_WORK_ROOM = {
   echo:     'meeting',   // Tech Lead → standup room
-  scout:    'social',    // Pixel UI/UX → chat room (design reviews)
+  scout:    'research',  // Pixel UI/UX → code lab
   quill:    'research',  // Dash Frontend → code lab
   sage:     'board',     // Stack Backend → sprint board
-  sentinel: 'break',     // Probe QA → coffee bar (testing corner)
+  sentinel: 'board',     // Probe QA → sprint board
   xalt:     'research',  // Ship DevOps → code lab
 };
 
 const AGENT_TALK_ROOM = {
   echo:     'meeting',   // leads standup
-  scout:    'social',    // shows designs
-  quill:    'social',    // discusses with pixel
+  scout:    'meeting',   // shows designs
+  quill:    'meeting',   // discusses with team
   sage:     'meeting',   // API discussion
   sentinel: 'board',     // reports bugs on board
   xalt:     'board',     // deployment status
@@ -89,11 +89,9 @@ startWatchdog();
 // Detects messages like "Echo come to coffee room", "everyone go to standup", etc.
 const ROOM_ALIASES = {
   'desk': ['desk', 'desks', 'dev floor', 'devfloor', 'work'],
-  'meeting': ['meeting', 'standup', 'stand up', 'stand-up', 'huddle'],
+  'meeting': ['meeting', 'standup', 'stand up', 'stand-up', 'huddle', 'social', 'chat', 'chat room', 'lounge'],
   'research': ['research', 'lab', 'code lab', 'codelab'],
-  'social': ['social', 'chat', 'chat room', 'chatroom', 'lounge'],
-  'break': ['break', 'coffee', 'coffee bar', 'coffeebar', 'coffee room', 'coffeeroom', 'chill'],
-  'board': ['board', 'sprint', 'sprint board', 'sprintboard', 'kanban'],
+  'board': ['board', 'sprint', 'sprint board', 'sprintboard', 'kanban', 'break', 'coffee'],
 };
 
 const AGENT_NAME_MAP = {
