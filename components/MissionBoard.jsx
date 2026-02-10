@@ -98,9 +98,11 @@ const styles = {
   panel: {
     background: '#111',
     borderRadius: 8,
-    padding: 12,
+    padding: 10,
     border: '1px solid #333',
-    minWidth: 200,
+    width: 200,
+    flexShrink: 0,
+    boxSizing: 'border-box',
   },
   title: {
     color: '#888',
