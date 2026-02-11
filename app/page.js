@@ -26,7 +26,13 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    fetchAll();
+    let mounted = true;
+
+    // Wrap in async immediately invoked function expression (IIFE) or just call the async function
+    const init = async () => {
+       await fetchAll();
+    };
+    init();
 
     const channel = supabase.channel('hq-realtime')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'ops_agents' }, (payload) => {

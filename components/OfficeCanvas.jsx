@@ -942,7 +942,7 @@ function darken(hex, amt) {
 export default function OfficeCanvas({ agents }) {
   const canvasRef = useRef(null);
   const frameRef = useRef(0);
-  const animRef = useRef(null);
+  const animRef = useRef();
 
   const draw = useCallback(() => {
     const canvas = canvasRef.current;
@@ -950,25 +950,27 @@ export default function OfficeCanvas({ agents }) {
     const ctx = canvas.getContext('2d');
     const cw = canvas.width;
     const ch = canvas.height;
-    frameRef.current++;
-    const frame = frameRef.current;
-
-    // Background with radial vignette
+    
+    // Clear & background
     const bgGrad = ctx.createRadialGradient(cw / 2, ch / 2, 100, cw / 2, ch / 2, cw * 0.7);
     bgGrad.addColorStop(0, '#101020');
     bgGrad.addColorStop(1, '#080810');
     ctx.fillStyle = bgGrad;
     ctx.fillRect(0, 0, cw, ch);
 
-    // Subtle dot grid (instead of lines)
+    // Subtle dot grid
     ctx.fillStyle = 'rgba(255,255,255,0.03)';
     for (let gx = 14; gx < cw; gx += 28) {
       for (let gy = 14; gy < ch; gy += 28) {
         ctx.beginPath();
-        ctx.arc(gx, gy, 0.5, 0, Math.PI * 2);
+        ctx.arc(gx, gy, 0.5, 0, 2 * Math.PI);
         ctx.fill();
       }
     }
+
+    // Frame counter
+    frameRef.current = (frameRef.current || 0) + 1;
+    const frame = frameRef.current;
 
     drawWatermark(ctx, cw, ch);
     drawFloorAccents(ctx, cw, ch, frame);
@@ -976,7 +978,7 @@ export default function OfficeCanvas({ agents }) {
     drawFurniture(ctx, cw, ch, frame);
     drawParticles(ctx, cw, ch, frame);
 
-    // Connection lines (before agents so lines go behind)
+    // Connection lines
     drawConnections(ctx, agents, cw, ch, frame);
 
     // Agent avatars
@@ -987,30 +989,25 @@ export default function OfficeCanvas({ agents }) {
       });
     }
 
-    animRef.current = requestAnimationFrame(draw);
+    // Use a ref to access the latest draw function without circular dependency
+    // We cannot pass 'draw' directly to RAF inside 'draw' because 'draw' is not yet initialized
+    // But since this is a callback, by the time it runs, we just need to schedule the NEXT frame
+    // We can use a separate function for the loop that calls the current draw
   }, [agents]);
 
+  // Separate loop driver
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const resize = () => {
-      const parent = canvas.parentElement;
-      const w = parent ? parent.clientWidth : 900;
-      const h = Math.round(w * (480 / 900));
-      canvas.width = Math.max(w, 280);
-      canvas.height = Math.max(h, 150);
+    const loop = () => {
+      draw();
+      animRef.current = requestAnimationFrame(loop);
     };
-    resize();
-
-    const ro = new ResizeObserver(resize);
-    if (canvas.parentElement) ro.observe(canvas.parentElement);
-
-    animRef.current = requestAnimationFrame(draw);
-    return () => {
-      if (animRef.current) cancelAnimationFrame(animRef.current);
-      ro.disconnect();
-    };
+    
+    // Start loop
+    if (canvasRef.current) {
+        animRef.current = requestAnimationFrame(loop);
+    }
+    
+    return () => cancelAnimationFrame(animRef.current);
   }, [draw]);
 
   return (

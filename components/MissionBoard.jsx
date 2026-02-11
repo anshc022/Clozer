@@ -14,7 +14,11 @@ export default function MissionBoard() {
   }, []);
 
   useEffect(() => {
-    fetchHealth();
+    let mounted = true;
+    const load = async () => {
+      await fetchHealth();
+    };
+    load();
     const iv = setInterval(fetchHealth, 15000);
     return () => clearInterval(iv);
   }, [fetchHealth]);
