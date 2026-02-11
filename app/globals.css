@@ -147,16 +147,24 @@ html {
 
 /* Responsive — Tablet */
 @media (max-width: 900px) {
-  .hq-main, .hq-bottom {
+  .hq-main {
+    flex-direction: column;
+  }
+  .hq-bottom {
     flex-direction: column;
   }
   .hq-center {
     min-width: unset;
     width: 100%;
+    order: -1; /* Canvas first on tablet */
   }
-  .hq-sidebar-left,
+  .hq-sidebar-left {
+    width: 100%;
+    order: 0;
+  }
   .hq-sidebar-right {
     width: 100%;
+    order: 1;
   }
 }
 
@@ -175,10 +183,15 @@ html {
   .hq-center {
     min-width: unset;
     width: 100%;
+    order: -1; /* Canvas first on mobile */
   }
-  .hq-sidebar-left,
+  .hq-sidebar-left {
+    width: 100%;
+    order: 0;
+  }
   .hq-sidebar-right {
     width: 100%;
+    order: 1;
   }
   .hq-controls {
     flex-wrap: wrap;

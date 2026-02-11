@@ -11,27 +11,29 @@ export default function AgentPanel({ agents }) {
   return (
     <div style={styles.panel}>
       <h3 style={styles.title}>AGENTS</h3>
-      {(agents || []).map(a => {
-        const config = AGENTS[a.name] || {};
-        return (
-          <div key={a.name} className="agent-card">
-            <div className="agent-card-header">
-              <span style={{ ...styles.dot, backgroundColor: config.color }}></span>
-              <span style={styles.icon}>{config.icon}</span>
-              <span style={styles.name}>{config.label}</span>
-              <span className="agent-role" style={{ color: config.color }}>{config.role}</span>
+      <div className="agent-list">
+        {(agents || []).map(a => {
+          const config = AGENTS[a.name] || {};
+          return (
+            <div key={a.name} className="agent-card">
+              <div className="agent-card-header">
+                <span style={{ ...styles.dot, backgroundColor: config.color }}></span>
+                <span style={styles.icon}>{config.icon}</span>
+                <span style={styles.name}>{config.label}</span>
+                <span className="agent-role" style={{ color: config.color }}>{config.role}</span>
+              </div>
+              <div className="agent-card-status">
+                <span style={styles.status}>
+                  {statusEmoji[a.status] || '⚪'} <span className="status-text">{a.status}</span>
+                </span>
+              </div>
+              {a.current_task && (
+                <div className="agent-card-task">"{a.current_task.slice(0, 40)}"</div>
+              )}
             </div>
-            <div className="agent-card-status">
-              <span style={styles.status}>
-                {statusEmoji[a.status] || '⚪'} <span className="status-text">{a.status}</span>
-              </span>
-            </div>
-            {a.current_task && (
-              <div className="agent-card-task">"{a.current_task.slice(0, 40)}"</div>
-            )}
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
     </div>
   );
 }

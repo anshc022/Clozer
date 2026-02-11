@@ -1,7 +1,23 @@
 
+.agent-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.agent-list {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
 .agent-card {
-  padding: 5px 0;
-  border-bottom: 1px solid #222;
+  flex: 0 0 160px;
+  padding: 8px;
+  border: 1px solid #222;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.02);
   display: flex;
   flex-direction: column;
 }
@@ -42,18 +58,24 @@
 
 /* Mobile Layout */
 @media (max-width: 600px) {
-  .agent-card {
+  .agent-list {
     flex-direction: row;
-    align-items: center;
-    flex-wrap: nowrap;
-    height: auto;
-    min-height: 32px;
-    padding: 6px 0;
+    overflow-x: auto;
+    gap: 8px;
+    padding-bottom: 4px;
+  }
+
+  .agent-card {
+    flex: 0 0 auto;
+    width: 140px;
+    border: 1px solid #333;
+    border-radius: 6px;
+    padding: 8px;
+    background: #1a1a1a;
   }
 
   .agent-card-header {
-    flex: 0 0 auto;
-    margin-right: 8px;
+    margin-bottom: 4px;
   }
   
   .agent-role {
@@ -62,20 +84,21 @@
 
   .agent-card-status {
     padding-left: 0;
-    margin-top: 0;
-    margin-right: 8px;
-    flex: 0 0 auto;
+    margin-top: 4px;
   }
 
   .status-text {
-    display: none; /* Hide text status, keep emoji */
+    display: inline; /* Show text status in card view */
   }
 
   .agent-card-task {
     padding-left: 0;
-    margin-top: 0;
-    flex: 1;
-    min-width: 0; /* Enable truncation */
-    text-align: right;
+    margin-top: 4px;
+    white-space: normal; /* Allow wrapping */
+    line-height: 1.2;
+    height: 2.4em; /* Limit to 2 lines approximately */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
   }
 }
