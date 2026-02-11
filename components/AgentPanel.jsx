@@ -1,5 +1,6 @@
 'use client';
 import { AGENTS } from '@/lib/agents';
+import './AgentPanel.css';
 
 const statusEmoji = {
   idle: '💤', working: '🟢', thinking: '🤔', talking: '💬',
@@ -13,20 +14,20 @@ export default function AgentPanel({ agents }) {
       {(agents || []).map(a => {
         const config = AGENTS[a.name] || {};
         return (
-          <div key={a.name} style={styles.row}>
-            <div style={styles.rowTop}>
+          <div key={a.name} className="agent-card">
+            <div className="agent-card-header">
               <span style={{ ...styles.dot, backgroundColor: config.color }}></span>
               <span style={styles.icon}>{config.icon}</span>
               <span style={styles.name}>{config.label}</span>
-              <span style={{ ...styles.role, color: config.color }}>{config.role}</span>
+              <span className="agent-role" style={{ color: config.color }}>{config.role}</span>
             </div>
-            <div style={styles.rowBottom}>
+            <div className="agent-card-status">
               <span style={styles.status}>
-                {statusEmoji[a.status] || '⚪'} {a.status}
+                {statusEmoji[a.status] || '⚪'} <span className="status-text">{a.status}</span>
               </span>
             </div>
             {a.current_task && (
-              <div style={styles.task}>"{a.current_task.slice(0, 40)}"</div>
+              <div className="agent-card-task">"{a.current_task.slice(0, 40)}"</div>
             )}
           </div>
         );
@@ -51,19 +52,6 @@ const styles = {
     margin: '0 0 8px',
     fontFamily: 'monospace',
   },
-  row: {
-    padding: '5px 0',
-    borderBottom: '1px solid #222',
-  },
-  rowTop: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 4,
-  },
-  rowBottom: {
-    paddingLeft: 16,
-    marginTop: 2,
-  },
   dot: {
     width: 6,
     height: 6,
@@ -79,30 +67,9 @@ const styles = {
     fontFamily: 'monospace',
     fontWeight: 'bold',
   },
-  role: {
-    fontSize: 9,
-    fontFamily: 'monospace',
-    opacity: 0.7,
-    background: 'rgba(255,255,255,0.05)',
-    padding: '0px 4px',
-    borderRadius: 3,
-    border: '1px solid rgba(255,255,255,0.08)',
-    marginLeft: 'auto',
-  },
   status: {
     color: '#aaa',
     fontSize: 10,
     fontFamily: 'monospace',
-  },
-  task: {
-    color: '#666',
-    fontSize: 9,
-    fontFamily: 'monospace',
-    fontStyle: 'italic',
-    paddingLeft: 16,
-    marginTop: 1,
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap',
   },
 };
