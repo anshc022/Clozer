@@ -1,6 +1,5 @@
 # MyHQ
 **My-hq** is a modern, centralized dashboard application designed to serve as a comprehensive operational headquarters. Built with **Next.js**, it delivers a high-performance, scalable, and user-friendly interface for managing agents, workflows, and system resources.
-
 ## Features
 ### 📱 New Responsive Agent Card Layout
 We have significantly enhanced the mobile experience with a brand-new **Agent Card layout**. This responsive design ensures that agent details, status indicators, and control options are perfectly optimized for smaller screens, providing a seamless management experience on the go.
