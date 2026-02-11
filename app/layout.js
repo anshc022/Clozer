@@ -7,7 +7,7 @@ const mono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "OpenClaw HQ — 6-Agent Command Center",
+  title: "Pranshu'S HQ — 6-Agent Command Center",
   description: "Real-time 2D pixel office showing 6 AI agents working together",
 };
 
