@@ -46,6 +46,67 @@ function extractAgent(payload) {
   return null;
 }
 
+// ─── Delegation detection — when Echo delegates, mark sub-agents as working ───
+const DELEGATION_PATTERNS = {
+  scout:    [/pixel/i, /ui\/ux/i, /design/i, /layout/i],
+  quill:    [/dash/i, /frontend/i, /html/i, /css/i, /react/i, /component/i],
+  sage:     [/stack/i, /backend/i, /api/i, /server/i, /database/i],
+  sentinel: [/probe/i, /qa/i, /bug/i, /test/i, /quality/i],
+  xalt:     [/ship/i, /devops/i, /deploy/i, /ci\/cd/i, /infra/i],
+};
+
+// Track which sub-agents are working from a delegation
+const activeDelegations = new Map(); // agentName → { startedAt, task }
+
+async function detectDelegation(text) {
+  if (!text) return;
+  const delegationKeywords = /assign|delegat|send|dispatc|task.*to|asking|telling/i;
+  if (!delegationKeywords.test(text)) return;
+
+  for (const [agentId, patterns] of Object.entries(DELEGATION_PATTERNS)) {
+    const agentName = AGENT_MAP[agentId] || agentId;
+    if (patterns.some(p => p.test(text))) {
+      // Extract task description
+      const taskMatch = text.match(new RegExp(`(?:${patterns.map(p => p.source).join('|')}).*?[—–\\-:]\\s*(.{10,80})`, 'i'));
+      const task = taskMatch ? taskMatch[1].slice(0, 80) : 'Working on delegated task';
+
+      activeDelegations.set(agentName, { startedAt: Date.now(), task });
+
+      await supabase.from('ops_agents').update({
+        status: 'working',
+        current_task: task,
+        current_room: getWorkRoom(agentName),
+        last_active_at: new Date().toISOString(),
+      }).eq('name', agentName);
+
+      await supabase.from('ops_events').insert({
+        agent: agentName,
+        event_type: 'task',
+        title: `Delegated by Echo: ${task.slice(0, 60)}`,
+      });
+    }
+  }
+}
+
+// When a subagent run finishes, mark delegated agents as done
+async function finishDelegations() {
+  for (const [agentName, info] of activeDelegations.entries()) {
+    await supabase.from('ops_agents').update({
+      status: 'idle',
+      current_task: null,
+      current_room: 'desk',
+      last_active_at: new Date().toISOString(),
+    }).eq('name', agentName);
+
+    await supabase.from('ops_events').insert({
+      agent: agentName,
+      event_type: 'complete',
+      title: 'Completed delegated task',
+    });
+  }
+  activeDelegations.clear();
+}
+
 // ─── Track active runs (per agent, per request) ───
 const activeRuns = new Map(); // runId → { agent, text, startedAt, toolCalls, chatLogged, recovered }
 
@@ -211,16 +272,19 @@ async function processGatewayMessage(msg) {
 
     // ── lifecycle:start — ONE agent starts processing a request ──
     if (eventName === 'agent' && payload.stream === 'lifecycle' && payload.data?.phase === 'start') {
+      const isSubagent = payload.sessionKey?.includes('subagent');
+
       if (runId) {
         activeRuns.set(runId, {
           agent, text: '', startedAt: Date.now(),
           toolCalls: [], chatLogged: false, recovered: false,
+          isSubagent,
         });
       }
 
       await supabase.from('ops_agents').update({
         status: 'working',
-        current_task: 'Processing request...',
+        current_task: isSubagent ? 'Working on delegated sub-task...' : 'Processing request...',
         current_room: getWorkRoom(agent),
         last_active_at: new Date().toISOString(),
       }).eq('name', agent);
@@ -228,15 +292,16 @@ async function processGatewayMessage(msg) {
       await supabase.from('ops_events').insert({
         agent,
         event_type: 'task',
-        title: `Started processing request`,
+        title: isSubagent ? 'Sub-agent started working' : 'Started processing request',
       });
 
-      return { type: 'lifecycle_start', agent };
+      return { type: 'lifecycle_start', agent, isSubagent };
     }
 
     // ── lifecycle:end — ONE agent finishes processing ──
     if (eventName === 'agent' && payload.stream === 'lifecycle' && payload.data?.phase === 'end') {
       const run = runId ? activeRuns.get(runId) : null;
+      const isSubagent = run?.isSubagent || payload.sessionKey?.includes('subagent');
 
       // Save the final real response as a message
       if (run?.text) {
@@ -261,8 +326,13 @@ async function processGatewayMessage(msg) {
         title: `Completed${run?.toolCalls.length ? ` (${run.toolCalls.length} tools used)` : ''}`,
       });
 
+      // If this is a subagent ending, mark delegated agents as completed too
+      if (isSubagent) {
+        await finishDelegations();
+      }
+
       if (runId) setTimeout(() => activeRuns.delete(runId), 5000);
-      return { type: 'lifecycle_end', agent };
+      return { type: 'lifecycle_end', agent, isSubagent };
     }
 
     // ── assistant — Streaming response (accumulate text, update ONLY this agent) ──
@@ -284,6 +354,11 @@ async function processGatewayMessage(msg) {
         current_room: getTalkRoom(agent),
         last_active_at: new Date().toISOString(),
       }).eq('name', agent);
+
+      // Detect delegation in Echo's response
+      if (agent === 'echo') {
+        await detectDelegation(text);
+      }
 
       return { type: 'assistant_stream', agent };
     }
