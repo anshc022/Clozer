@@ -43,23 +43,23 @@ const PIXEL_LOOKS = {
     skin: '#FFD5A0', hair: '#2244AA', hairStyle: 'spiky',
     shirt: '#4A90D9', pants: '#2a4a7a', accessory: 'headset',
   },
-  scout: {
+  pixel: {
     skin: '#C68642', hair: '#1a1a1a', hairStyle: 'cap',
     shirt: '#27AE60', pants: '#1a5a30', accessory: 'pen',
   },
-  quill: {
+  dash: {
     skin: '#FFDBB4', hair: '#8E44AD', hairStyle: 'long',
     shirt: '#8E44AD', pants: '#5a2a6a', accessory: 'glasses',
   },
-  sage: {
+  stack: {
     skin: '#FFE0BD', hair: '#CCCCCC', hairStyle: 'bald',
     shirt: '#F1C40F', pants: '#8a7a20', accessory: 'headset',
   },
-  sentinel: {
+  probe: {
     skin: '#D4A06A', hair: '#E74C3C', hairStyle: 'mohawk',
     shirt: '#E74C3C', pants: '#801a1a', accessory: 'glasses',
   },
-  xalt: {
+  ship: {
     skin: '#FFD5A0', hair: '#E67E22', hairStyle: 'short',
     shirt: '#E67E22', pants: '#7a4a10', accessory: 'phone',
   },
