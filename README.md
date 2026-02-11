@@ -11,7 +11,6 @@ We have significantly enhanced the mobile experience with a brand-new **Agent Ca
 ### 🛠️ Modern Architecture
 - **Component-Based UI**: Built with React for modular, reusable, and maintainable code.
 - **Scalable Structure**: Designed to grow with your needs, from a personal dashboard to a team-wide headquarters.
-
 ## Getting Started
 
 Follow these steps to set up the project locally.
