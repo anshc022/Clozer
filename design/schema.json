@@ -1,0 +1,95 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "GameState",
+  "description": "The current state of the 2D Agent World, sent from backend to frontend.",
+  "type": "object",
+  "required": ["timestamp", "systemStatus", "agents", "logs"],
+  "properties": {
+    "timestamp": {
+      "type": "integer",
+      "description": "Unix timestamp (ms) of the current state snapshot."
+    },
+    "systemStatus": {
+      "type": "object",
+      "required": ["status", "uptime"],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["ONLINE", "OFFLINE", "MAINTENANCE", "ERROR"],
+          "description": "Global system health status."
+        },
+        "uptime": {
+          "type": "string",
+          "description": "Formatted uptime string (e.g., '4h 20m')."
+        }
+      }
+    },
+    "agents": {
+      "type": "array",
+      "description": "List of all active agents in the world.",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "role", "position", "status", "currentTask"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier (e.g., 'agent_echo')."
+          },
+          "name": {
+            "type": "string",
+            "enum": ["Echo", "Pixel", "Dash", "Stack", "Probe", "Ship"],
+            "description": "Display name of the agent."
+          },
+          "role": {
+            "type": "string",
+            "description": "Functional role (e.g., 'Coordinator', 'Frontend')."
+          },
+          "color": {
+            "type": "string",
+            "description": "Hex color code for the agent."
+          },
+          "position": {
+            "type": "object",
+            "required": ["x", "y"],
+            "properties": {
+              "x": { "type": "integer", "minimum": 0, "maximum": 100 },
+              "y": { "type": "integer", "minimum": 0, "maximum": 100 }
+            },
+            "description": "2D coordinates on the grid (0-100 scale)."
+          },
+          "status": {
+            "type": "string",
+            "enum": ["IDLE", "WORKING", "MOVING", "THINKING", "ERROR"],
+            "description": "Current high-level state."
+          },
+          "currentTask": {
+            "type": "string",
+            "description": "Short description of what the agent is currently doing."
+          }
+        }
+      }
+    },
+    "logs": {
+      "type": "array",
+      "description": "Recent system logs.",
+      "items": {
+        "type": "object",
+        "required": ["id", "timestamp", "agentId", "message"],
+        "properties": {
+          "id": { "type": "string" },
+          "timestamp": { "type": "integer" },
+          "agentId": {
+            "type": "string",
+            "description": "ID of the agent generating the log, or 'SYSTEM'."
+          },
+          "level": {
+            "type": "string",
+            "enum": ["INFO", "WARN", "ERROR", "DEBUG"],
+            "default": "INFO"
+          },
+          "message": { "type": "string" }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,7 @@
+<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <!-- Pixel: Pink, Artist -->
+  <rect x="4" y="4" width="24" height="24" fill="#ff4081" />
+  <rect x="20" y="2" width="8" height="8" fill="#333" transform="rotate(15 24 6)" /> <!-- Beretish -->
+  <rect x="6" y="22" width="20" height="4" fill="#fff" /> <!-- Tablet edge -->
+  <text x="8" y="20" font-family="monospace" font-size="20" fill="#fff">P</text>
+</svg>

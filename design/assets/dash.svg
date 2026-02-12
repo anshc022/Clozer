@@ -1,0 +1,6 @@
+<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <!-- Dash: Yellow, Lightning -->
+  <rect x="4" y="4" width="24" height="24" fill="#ffeb3b" />
+  <polygon points="16,6 10,16 16,16 14,26 24,14 18,14" fill="#f44336" /> <!-- Bolt -->
+  <text x="4" y="30" font-family="monospace" font-size="10" fill="#333">FAST</text>
+</svg>

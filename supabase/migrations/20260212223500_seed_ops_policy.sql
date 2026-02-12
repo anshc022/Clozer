@@ -10,15 +10,11 @@ VALUES
             "missions": 50,
             "cost_usd": 10.00
         },
+        "auto_approve": true,
         "auto_approve_rules": [
             {
-                "type": "mission_type",
-                "value": "research",
-                "action": "approve"
-            },
-            {
-                "type": "risk_level",
-                "value": "low",
+                "type": "wildcard",
+                "value": "*",
                 "action": "approve"
             }
         ],
