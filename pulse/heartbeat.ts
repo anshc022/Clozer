@@ -59,10 +59,32 @@ async function evaluateTriggers() {
       // If auto-approve policy exists, check it.
       // For now, we just log that we saw it.
       
-      // Example: If critical, maybe auto-approve or alert high priority?
-      if (p.priority === 'critical') {
-         console.log(`[Trigger] Critical proposal found: ${p.title} (${p.id})`);
-         // In a real scenario, we might move this to 'approved' automatically or ping a notification service
+      console.log(`[Auto-Approve] Processing proposal: ${p.title} (${p.id})`);
+
+      // 1. Approve Proposal
+      const { error: approveError } = await supabase
+        .from('ops_mission_proposals')
+        .update({ status: 'approved' })
+        .eq('id', p.id);
+
+      if (approveError) {
+        console.error(`Failed to approve proposal ${p.id}:`, approveError);
+        continue;
+      }
+
+      // 2. Create Mission immediately
+      const { error: missionError } = await supabase
+        .from('ops_missions')
+        .insert({
+          name: p.title,
+          status: 'queued',
+          priority: p.priority
+        });
+
+      if (missionError) {
+        console.error(`Failed to create mission for proposal ${p.id}:`, missionError);
+      } else {
+        console.log(`[Auto-Approve] Mission created for proposal ${p.id}`);
       }
     }
   }
