@@ -1,15 +1,34 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Music, ArrowRight, Lock } from 'lucide-react';
+import { Music, ArrowRight, Lock, AlertCircle } from 'lucide-react';
+import { signIn } from '../services/api';
 
 const Login = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    // TODO: Add Supabase Auth
-    navigate('/setup');
+    setLoading(true);
+    setError(null);
+
+    try {
+      const { data, error } = await signIn(email, password);
+      
+      if (error) {
+        setError(error.message);
+      } else if (data.user) {
+        navigate('/setup');
+      }
+    } catch (err) {
+      setError('An unexpected error occurred.');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -23,25 +42,45 @@ const Login = () => {
           <p className="text-slate-400">Enter the vibe zone.</p>
         </div>
 
-        <form onSubmit={handleLogin} className="space-y-6">
+        {error && (
+          <div className="bg-red-500/10 border border-red-500/50 text-red-400 p-3 rounded-lg mb-6 flex items-center gap-2">
+            <AlertCircle className="w-5 h-5" />
+            <span className="text-sm">{error}</span>
+          </div>
+        )}
+
+        <form onSubmit={handleLogin} className="space-y-4">
           <div>
-            <label className="block text-slate-300 text-sm font-medium mb-2">University Email</label>
+            <label className="block text-slate-300 text-sm font-medium mb-2">Email</label>
             <input 
               type="email" 
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-purple-500 transition focus:ring-1 focus:ring-purple-500"
-              placeholder="you@university.edu"
+              placeholder="you@example.com"
+            />
+          </div>
+
+          <div>
+            <label className="block text-slate-300 text-sm font-medium mb-2">Password</label>
+            <input 
+              type="password" 
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-purple-500 transition focus:ring-1 focus:ring-purple-500"
+              placeholder="••••••••"
             />
           </div>
 
           <button 
             type="submit" 
-            className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-xl transition flex items-center justify-center gap-2 group"
+            disabled={loading}
+            className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-xl transition flex items-center justify-center gap-2 group disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Continue with Email
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition" />
+            {loading ? 'Signing in...' : 'Sign In'}
+            {!loading && <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition" />}
           </button>
         </form>
 

@@ -1,11 +1,29 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Sparkles, Check, ChevronRight } from 'lucide-react';
+import { Sparkles, Check, ChevronRight, AlertCircle } from 'lucide-react';
+import { getCurrentUser, updateVibes } from '../services/api';
 
 const ProfileSetup = () => {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [selectedVibes, setSelectedVibes] = useState([]);
+  const [userId, setUserId] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const checkUser = async () => {
+      const { user, error } = await getCurrentUser();
+      if (error || !user) {
+        // Redirect to login if not authenticated (or handle anonymous/guest logic appropriately)
+        // For this flow, we'll just log it and potentially let them browse, but saving will fail without a user.
+        console.log("No active session found:", error);
+      } else {
+        setUserId(user.id);
+      }
+    };
+    checkUser();
+  }, []);
 
   const vibes = [
     "Night Owl 🦉", "Techno 🎹", "Matcha 🍵", "Gym Rat 🏋️", 
@@ -23,6 +41,29 @@ const ProfileSetup = () => {
     }
   };
 
+  const handleFinishSetup = async () => {
+    if (!userId) {
+      setError("You must be logged in to save your profile.");
+      return;
+    }
+    
+    setLoading(true);
+    setError(null);
+
+    try {
+      const { error } = await updateVibes(userId, selectedVibes);
+      if (error) {
+        throw error;
+      }
+      alert("Profile updated successfully!");
+      // Navigate to dashboard or home page
+    } catch (err) {
+      setError(err.message || "Failed to save profile.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-900 text-white flex flex-col items-center pt-20 px-6">
       <div className="w-full max-w-2xl">
@@ -32,6 +73,13 @@ const ProfileSetup = () => {
           <div className={`h-2 flex-1 rounded-full ${step >= 2 ? 'bg-purple-500' : 'bg-slate-700'}`}></div>
           <div className={`h-2 flex-1 rounded-full ${step >= 3 ? 'bg-purple-500' : 'bg-slate-700'}`}></div>
         </div>
+
+        {error && (
+          <div className="bg-red-500/10 border border-red-500/50 text-red-400 p-3 rounded-lg mb-6 flex items-center gap-2">
+            <AlertCircle className="w-5 h-5" />
+            <span className="text-sm">{error}</span>
+          </div>
+        )}
 
         {step === 1 && (
           <div className="animate-fade-in">
@@ -94,7 +142,7 @@ const ProfileSetup = () => {
             <div className="w-full h-64 bg-slate-800 rounded-2xl border border-slate-700 mb-8 flex flex-col items-center justify-center relative overflow-hidden group">
                <div className="absolute inset-0 bg-gradient-to-tr from-purple-500/10 to-pink-500/10 opacity-50"></div>
                <div className="text-6xl mb-4 animate-pulse">👻</div>
-               <h3 className="text-2xl font-bold text-white z-10">Ghost User #902</h3>
+               <h3 className="text-2xl font-bold text-white z-10">Ghost User #{userId ? userId.slice(0, 4) : '???'}</h3>
                <div className="flex gap-2 mt-4 z-10">
                  {selectedVibes.slice(0, 3).map(v => (
                    <span key={v} className="text-xs bg-slate-700 px-2 py-1 rounded text-slate-300">{v}</span>
@@ -103,10 +151,12 @@ const ProfileSetup = () => {
             </div>
 
             <button 
-              onClick={() => alert("Welcome to Vibe Match! (Demo End)")}
-              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold py-4 rounded-xl text-lg hover:opacity-90 transition shadow-lg shadow-purple-500/25 flex items-center justify-center gap-2"
+              onClick={handleFinishSetup}
+              disabled={loading}
+              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold py-4 rounded-xl text-lg hover:opacity-90 transition shadow-lg shadow-purple-500/25 flex items-center justify-center gap-2 disabled:opacity-50"
             >
-              Enter the Pool <Check className="w-5 h-5" />
+              {loading ? "Saving..." : "Enter the Pool"}
+              {!loading && <Check className="w-5 h-5" />}
             </button>
           </div>
         )}
